@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MIS PRIMERAS METAS FINANCIERAS</title>
+  <style>
+    :root {
+      /* Palette: lila + azules */
+      --lilac-100: #f3e8ff;
+      --lilac-200: #e9d5ff;
+      --blue-50:  #eef2ff;
+      --blue-100: #dbeafe;
+      --accent:   #2563eb; /* azul principal */
+      --accent-2: #7c3aed; /* morado/índigo */
+      --muted:    #566174;
+      --card:     #ffffff;
+      --bg-start: #f8f0ff; /* muy claro lila */
+      --bg-end:   #eef8ff; /* muy claro azul */
+      --max-width: 1000px;
+    }
+
+    html,body{height:100%}
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      margin:0;
+      padding:1rem;
+      display:flex;
+      justify-content:center;
+      background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      color: #0f172a;
+    }
+
+    .wrap {
+      width:100%;
+      max-width:var(--max-width);
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95));
+      border-radius:14px;
+      padding:1.1rem;
+      box-shadow: 0 10px 30px rgba(20,24,40,0.10);
+      border: 1px solid rgba(124,58,237,0.06);
+    }
+
+    h1 {
+      margin:0 0 .25rem 0;
+      font-size:1.2rem;
+      text-transform:uppercase;
+      color: var(--accent-2);
+      letter-spacing: 0.6px;
+    }
+
+    p.lead {
+      margin:0 0 1rem 0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:1rem;
+      align-items:start;
+    }
+
+    .col { background:transparent; }
+
+    form.card {
+      background: linear-gradient(180deg, var(--lilac-100), #ffffff);
+      padding:.9rem;
+      border-radius:10px;
+      border: 1px solid rgba(124,58,237,0.06);
+      box-shadow: 0 6px 18px rgba(16,24,40,0.04);
+    }
+
+    .card {
+      background: linear-gradient(180deg, #ffffff, var(--blue-50));
+      padding:.6rem;
+      border-radius:10px;
+      border: 1px solid rgba(37,99,235,0.06);
+      box-shadow: 0 6px 18px rgba(16,24,40,0.03);
+    }
+
+    label {
+      display:block;
+      font-size:.85rem;
+      color:var(--muted);
+      margin-top:.5rem;
+    }
+
+    input, select {
+      width:100%;
+      padding:.5rem .6rem;
+      border:1px solid rgba(37,99,235,0.12);
+      border-radius:8px;
+      font-size:.95rem;
+      box-sizing:border-box;
+      background: linear-gradient(180deg,#fff,#fbfdff);
+      color: #08203a;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.06);
+      border-color: var(--accent);
+    }
+
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+
+    .controls {
+      display:flex;
+      gap:.5rem;
+      margin-top:.6rem;
+      flex-wrap:wrap;
+    }
+
+    button {
+      background: var(--accent);
+      color:#fff;
+      border:none;
+      padding:.55rem .75rem;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:700;
+      box-shadow: 0 6px 14px rgba(37,99,235,0.12);
+    }
+
+    button.secondary {
+      background: linear-gradient(180deg,#eef6ff,#f3ecff);
+      color: var(--accent-2);
+      border:1px solid rgba(124,58,237,0.06);
+      font-weight:700;
+    }
+
+    .results { margin-top:.6rem; display:grid; gap:.6rem; }
+
+    .small { font-size:.85rem; color:var(--muted); }
+
+    .goalCard {
+      padding:.6rem;
+      border-radius:8px;
+      background: linear-gradient(180deg,#fff,#fbfdff);
+      border:1px solid rgba(16,24,40,0.03);
+      margin-top:.6rem;
+    }
+
+    pre.plan {
+      background: linear-gradient(180deg,#faf5ff,#f0faff);
+      padding:.5rem;
+      border-radius:6px;
+      overflow:auto;
+      color:#0f172a;
+    }
+
+    table { width:100%; border-collapse:collapse; margin-top:.5rem; font-size:.9rem; }
+    th, td { padding:.35rem .45rem; border-bottom:1px solid rgba(15,23,42,0.04); text-align:right; }
+    th { text-align:left; color:var(--muted); font-weight:700; }
+
+    #chartWrap canvas { width:100% !important; height:260px !important; display:block; border-radius:8px; background: linear-gradient(180deg, rgba(124,58,237,0.04), rgba(37,99,235,0.03)); }
+
+    details { margin-top:.6rem; }
+
+    @media (max-width:980px) {
+      .grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns:1fr; }
+    }
+  </style>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <main class="wrap" id="app">
+    <h1>MIS PRIMERAS METAS FINANCIERAS</h1>
+    <p class="lead">Visualiza crecimiento con interés compuesto y planifica metas: fondo de emergencia, pago de deudas, ahorro para metas y retiro.</p>
+
+    <div class="grid">
+      <!-- LEFT: Calculadora principal -->
+      <div class="col">
+        <form id="compoundForm" class="card" aria-describedby="descCalc">
+          <div class="row">
+            <div>
+              <label for="initialCapital">Capital inicial</label>
+              <!-- inicia en 0.00 para que el usuario pueda editar -->
+              <input id="initialCapital" type="number" step="0.01" min="0" value="0.00" />
+            </div>
+            <div>
+              <label for="periodicContribution">Aportación por periodo</label>
+              <input id="periodicContribution" type="number" step="0.01" min="0" value="0.00" />
+            </div>
+            <div>
+              <label for="annualRate">Tasa anual (%)</label>
+              <input id="annualRate" type="number" step="0.01" value="0.00" />
+            </div>
+            <div>
+              <label for="years">Años</label>
+              <input id="years" type="number" step="0.1" min="0" value="0" />
+            </div>
+            <div>
+              <label for="paymentsPerYear">Períodos por año</label>
+              <input id="paymentsPerYear" type="number" min="1" step="1" value="12" />
+            </div>
+            <div>
+              <label for="paymentTiming">Pagos</label>
+              <select id="paymentTiming"><option value="end">Al final (ordinaria)</option><option value="beginning">Al inicio (vencida)</option></select>
+            </div>
+            <div>
+              <label for="currency">Moneda (ISO)</label>
+              <!-- predeterminado a MXN -->
+              <input id="currency" type="text" value="MXN" />
+            </div>
+            <div style="align-self:end">
+              <div class="controls">
+                <button id="calculateBtn" type="submit">Calcular</button>
+                <button id="resetBtn" type="button" class="secondary">Reset</button>
+                <button id="toggleChartBtn" type="button" class="secondary">Mostrar/Ocultar Gráfico</button>
+                <button id="downloadCsvBtn" type="button" class="secondary">Descargar CSV</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="errorBox" class="small" role="status" aria-live="polite"></div>
+
+          <!-- Mostrar resultados iniciando en 0.00 -->
+          <section id="resultsSection" class="results">
+            <div class="goalCard">
+              <div class="small">Valor futuro (total)</div>
+              <div id="totalFV" style="font-weight:700; margin-top:.25rem">MXN 0.00</div>
+            </div>
+            <div class="goalCard">
+              <div class="small">Contribuciones totales</div>
+              <div id="totalContribution" style="font-weight:700; margin-top:.25rem">MXN 0.00</div>
+            </div>
+            <div class="goalCard">
+              <div class="small">Ganancia por intereses</div>
+              <div id="totalInterest" style="font-weight:700; margin-top:.25rem">MXN 0.00</div>
+            </div>
+
+            <div class="goalCard" id="breakdownCard">
+              <div class="small">Desglose</div>
+              <div id="breakdownInner" style="margin-top:.4rem">
+                <div><strong>Capital inicial (FV):</strong> MXN 0.00</div>
+                <div><strong>Aportaciones (FV):</strong> MXN 0.00</div>
+                <div class="small">Periodos: 0 @ tasa per-period: 0.000000%</div>
+              </div>
+            </div>
+          </section>
+
+          <div id="chartWrap" style="display:none; margin-top:.6rem;"><canvas id="balanceChart" aria-label="Gráfico de saldo"></canvas></div>
+
+          <details style="margin-top:.6rem"><summary>Ver saldos por periodo</summary><div id="periodTableWrap"></div></details>
+        </form>
+      </div>
+
+      <!-- RIGHT: Metas y planes -->
+      <div class="col">
+        <!-- Fondo de emergencia -->
+        <div class="card">
+          <h3 style="margin:0 0 .3rem 0">Fondo de emergencia</h3>
+          <div class="small">Calcula monto objetivo y cuánto ahorrar por periodo</div>
+          <div style="margin-top:.5rem">
+            <label for="em_monthlyExpenses">Gasto mensual</label>
+            <input id="em_monthlyExpenses" type="number" step="0.01" min="0" value="0.00" />
+            <label for="em_targetMonths">Meses objetivo</label>
+            <input id="em_targetMonths" type="number" min="1" value="3" />
+            <label for="em_years">Plazo (años, opcional)</label>
+            <input id="em_years" type="number" step="0.1" min="0" value="0" />
+            <label for="em_annualRate">Tasa anual esperada (%)</label>
+            <input id="em_annualRate" type="number" step="0.01" value="0.00" />
+            <div class="controls" style="margin-top:.5rem">
+              <button id="em_calcBtn" type="button">Calcular</button>
+              <button id="em_planBtn" type="button" class="secondary">Generar Plan</button>
+            </div>
+            <div id="em_result" class="goalCard" style="margin-top:.5rem">MXN 0.00</div>
+          </div>
+        </div>
+
+        <!-- Pagar deuda -->
+        <div class="card" style="margin-top:.6rem">
+          <h3 style="margin:0 0 .3rem 0">Amortizar deuda</h3>
+          <div class="small">Calcula pago para amortizar y tabla de amortización</div>
+          <label for="de_balance">Saldo de deuda</label>
+          <input id="de_balance" type="number" step="0.01" value="0.00" />
+          <label for="de_annualRate">Tasa anual (%)</label>
+          <input id="de_annualRate" type="number" step="0.01" value="0.00" />
+          <label for="de_years">Plazo objetivo (años)</label>
+          <input id="de_years" type="number" step="0.1" value="0" />
+          <label for="de_payment">O pago mensual actual (opcional)</label>
+          <input id="de_payment" type="number" step="0.01" value="" />
+          <div class="controls" style="margin-top:.5rem">
+            <button id="de_calcBtn" type="button">Calcular</button>
+            <button id="de_planBtn" type="button" class="secondary">Generar Plan</button>
+          </div>
+          <div id="de_result" class="goalCard" style="margin-top:.5rem">MXN 0.00</div>
+          <details style="margin-top:.5rem"><summary>Tabla de amortización</summary><div id="de_tableWrap"></div></details>
+        </div>
+
+        <!-- Ahorro para metas -->
+        <div class="card" style="margin-top:.6rem">
+          <h3 style="margin:0 0 .3rem 0">Ahorro para meta</h3>
+          <div class="small">Calcula la aportación periódica para llegar a una meta</div>
+          <label for="sv_goalFV">Meta (monto objetivo)</label>
+          <input id="sv_goalFV" type="number" step="0.01" value="0.00" />
+          <label for="sv_P">Ahorro actual (P)</label>
+          <input id="sv_P" type="number" step="0.01" value="0.00" />
+          <label for="sv_years">Plazo (años)</label>
+          <input id="sv_years" type="number" step="0.1" value="0" />
+          <label for="sv_annualRate">Tasa anual esperada (%)</label>
+          <input id="sv_annualRate" type="number" step="0.01" value="0.00" />
+          <div class="controls" style="margin-top:.5rem">
+            <button id="sv_calcBtn" type="button">Calcular</button>
+            <button id="sv_planBtn" type="button" class="secondary">Generar Plan</button>
+          </div>
+          <div id="sv_result" class="goalCard" style="margin-top:.5rem">MXN 0.00</div>
+        </div>
+
+        <!-- Retiro -->
+        <div class="card" style="margin-top:.6rem">
+          <h3 style="margin:0 0 .3rem 0">Plan de retiro (simplificado)</h3>
+          <div class="small">Estimación de capital necesario y ahorro requerido</div>
+          <label for="rt_withdraw">Retiro deseado por periodo (p.ej mensual)</label>
+          <input id="rt_withdraw" type="number" step="0.01" value="0.00" />
+          <label for="rt_withdrawYears">Años de retiro</label>
+          <input id="rt_withdrawYears" type="number" step="1" value="0" />
+          <label for="rt_yearsToRetire">Años hasta retiro</label>
+          <input id="rt_yearsToRetire" type="number" step="1" value="0" />
+          <label for="rt_preRate">Tasa pre-retiro anual (%)</label>
+          <input id="rt_preRate" type="number" step="0.01" value="0.00" />
+          <div class="controls" style="margin-top:.5rem">
+            <button id="rt_calcBtn" type="button">Calcular</button>
+            <button id="rt_planBtn" type="button" class="secondary">Generar Plan</button>
+          </div>
+          <div id="rt_result" class="goalCard" style="margin-top:.5rem">MXN 0.00</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="margin-top:.8rem" class="small">Consejo: prioriza fondo de emergencia, luego amortiza deudas caras antes de invertir en objetivos de riesgo.</div>
+  </main>
+
+  <script>
+    /* ---------------------------
+       Utilidades y funciones de cálculo
+       --------------------------- */
+    function round2(v){return Math.round(v*100)/100;}
+    function formatCurrency(value, { locale = navigator?.language || 'es-MX', currency = 'MXN' } = {}) {
+      try {
+        return new Intl.NumberFormat(locale, { style:'currency', currency, minimumFractionDigits:2 }).format(value);
+      } catch (e) {
+        return (currency||'') + ' ' + (isFinite(value) ? value.toFixed(2) : value);
+      }
+    }
+
+    function calculateCompoundInterestOpts(opts = {}) {
+      const { P = 0, PMT = 0, annualRate = 0, years = 0, paymentsPerYear = 12, paymentTiming = 'end' } = opts;
+      if (!Number.isFinite(P) || !Number.isFinite(PMT) || !Number.isFinite(annualRate) || !Number.isFinite(years)) throw new Error('Entradas numéricas inválidas.');
+      if (!Number.isFinite(paymentsPerYear) || paymentsPerYear <= 0) throw new Error('paymentsPerYear debe ser > 0');
+      if (years < 0) throw new Error('years debe ser >= 0');
+
+      const n = Math.round(years * paymentsPerYear);
+      const i = annualRate / paymentsPerYear;
+      const fvInitial = P * Math.pow(1 + i, n);
+      let fvAnnuity = 0;
+      if (n === 0) fvAnnuity = 0;
+      else if (Math.abs(i) < 1e-12) fvAnnuity = PMT * n;
+      else {
+        const ordinary = PMT * ((Math.pow(1 + i, n) - 1) / i);
+        fvAnnuity = paymentTiming === 'beginning' ? ordinary * (1 + i) : ordinary;
+      }
+      const totalFV = fvInitial + fvAnnuity;
+      const totalContribution = P + PMT * n;
+      const totalInterest = totalFV - totalContribution;
+      return {
+        fvInitial: round2(fvInitial), fvAnnuity: round2(fvAnnuity), totalFV: round2(totalFV),
+        totalContribution: round2(totalContribution), totalInterest: round2(totalInterest),
+        usedI: i, usedN: n, raw:{fvInitial, fvAnnuity, totalFV, totalContribution, totalInterest}
+      };
+    }
+
+    function balancesPerPeriod(opts = {}) {
+      const { P = 0, PMT = 0, annualRate = 0, years = 0, paymentsPerYear = 12, paymentTiming = 'end' } = opts;
+      const n = Math.round(years * paymentsPerYear);
+      const i = annualRate / paymentsPerYear;
+      const balances = [];
+      let balance = P;
+      for (let period = 1; period <= n; period++) {
+        if (paymentTiming === 'beginning') {
+          balance += PMT;
+          balance = balance * (1 + i);
+        } else {
+          balance = balance * (1 + i);
+          balance += PMT;
+        }
+        balances.push({ period, balance: round2(balance), contributionTotal: round2(P + PMT * period) });
+      }
+      return { balances, usedN: n, usedI: i };
+    }
+
+    /* ---------------------------
+       Funciones de metas (finance-goals)
+       --------------------------- */
+    function requiredMonthlySavingsForGoal({ P=0, FV=0, annualRate=0, years=0, paymentsPerYear=12, paymentTiming='end' } = {}) {
+      const n = Math.round(years * paymentsPerYear);
+      const i = annualRate / paymentsPerYear;
+      if (n === 0) return Infinity;
+      const fvP = P * Math.pow(1 + i, n);
+      if (Math.abs(i) < 1e-12) return (FV - fvP) / n;
+      const factor = (Math.pow(1 + i, n) - 1) / i;
+      const denom = paymentTiming === 'beginning' ? factor * (1 + i) : factor;
+      return (FV - fvP) / denom;
+    }
+
+    function paymentToAmortizeDebt({ balance=0, annualRate=0, years=0, paymentsPerYear=12, months=null } = {}) {
+      const n = months != null ? months : Math.round(years * paymentsPerYear);
+      const i = annualRate / paymentsPerYear;
+      if (n <= 0) throw new Error('Periodos debe ser > 0');
+      if (Math.abs(i) < 1e-12) return balance / n;
+      const pow = Math.pow(1 + i, n);
+      return balance * i * pow / (pow - 1);
+    }
+
+    function monthsToPayOffDebt({ balance=0, annualRate=0, payment=0, paymentsPerYear=12 } = {}) {
+      const i = annualRate / paymentsPerYear;
+      if (payment <= 0) throw new Error('Pago debe ser > 0');
+      if (Math.abs(i) < 1e-12) {
+        const n = Math.ceil(balance / payment);
+        return { periods: n, yearsApprox: n / paymentsPerYear };
+      }
+      if (payment <= balance * i) return { periods: Infinity, yearsApprox: Infinity, message:'Pago insuficiente: no cubre intereses' };
+      const numerator = Math.log(payment / (payment - balance * i));
+      const denom = Math.log(1 + i);
+      const n = numerator / denom;
+      return { periods: Math.ceil(n), yearsApprox: n / paymentsPerYear };
+    }
+
+    function emergencyFundCalculator({ monthlyExpenses=0, targetMonths=3, P=0, annualRate=0, years=0, paymentsPerYear=12 } = {}) {
+      const targetAmount = monthlyExpenses * targetMonths;
+      if (!years || years <= 0) return { targetAmount, requiredMonthlySavings: Math.max(0, targetAmount - P), note: 'Plazo no definido: se muestra monto inmediato restante' };
+      const PMT = requiredMonthlySavingsForGoal({ P, FV: targetAmount, annualRate, years, paymentsPerYear, paymentTiming:'end' });
+      return { targetAmount, requiredMonthlySavings: Math.max(0, PMT) };
+    }
+
+    function retirementPlanner({ W=0, withdrawYears=20, paymentsPerYear=12, retirementRate=null, preRetirementRate=0.04, yearsToRetire=30, P=0 } = {}) {
+      const retRate = retirementRate != null ? retirementRate : preRetirementRate;
+      const iRet = retRate / paymentsPerYear; const nRet = Math.round(withdrawYears * paymentsPerYear);
+      let capitalNeeded = 0;
+      if (nRet === 0) capitalNeeded = 0;
+      else if (Math.abs(iRet) < 1e-12) capitalNeeded = W * nRet;
+      else capitalNeeded = W * (1 - Math.pow(1 + iRet, -nRet)) / iRet;
+      const FVtarget = capitalNeeded;
+      const i = preRetirementRate / paymentsPerYear;
+      const n = Math.round(yearsToRetire * paymentsPerYear);
+      let monthlySavings = 0;
+      if (n === 0) monthlySavings = 0;
+      else if (Math.abs(i) < 1e-12) monthlySavings = (FVtarget - P) / n;
+      else {
+        const pow = Math.pow(1 + i, n); const factor = (pow - 1) / i;
+        monthlySavings = (FVtarget - P * pow) / factor;
+      }
+      return { capitalNeededAtRetirement: capitalNeeded, monthlySavingsRequired: monthlySavings, assumptions:{paymentsPerYear, preRetirementRate, retirementRate:retRate, yearsToRetire, withdrawYears} };
+    }
+
+    function generateActionPlan(goalType, results) {
+      const plan = [];
+      if (goalType === 'emergency') {
+        const { targetAmount, requiredMonthlySavings, note } = results;
+        plan.push(`Meta: Fondo de emergencia = ${targetAmount.toFixed(2)}.`);
+        if (requiredMonthlySavings <= 0) plan.push('Tienes suficiente ahorro actualmente.');
+        else if (!isFinite(requiredMonthlySavings) || note) plan.push(`Necesitas ${Math.max(0,(targetAmount - (results.P || 0))).toFixed(2)} inmediatamente o define un plazo para calcular aportes.`);
+        else plan.push(`Ahorra ${requiredMonthlySavings.toFixed(2)} por periodo hasta alcanzar la meta.`);
+        plan.push('Mantén el fondo en una cuenta líquida y revisa anualmente.');
+      } else if (goalType === 'debt') {
+        if (results.message) plan.push(results.message);
+        else {
+          if (results.periods && isFinite(results.periods)) plan.push(`Con el pago actual se tardará ~${results.periods} periodos (${(results.periods/12).toFixed(1)} años).`);
+          if (results.suggestedPayment) plan.push(`Para amortizar en ${results.targetYears} años, paga ${results.suggestedPayment.toFixed(2)} por periodo.`);
+          plan.push('Prioriza deudas con mayor tasa o usa bola de nieve según preferencia.');
+        }
+      } else if (goalType === 'savings') {
+        plan.push(`Ahorra ${results.requiredMonthlySavings?.toFixed?.(2) || '—'} por periodo para alcanzar ${results.FV || 'la meta'}.`);
+        plan.push('Automatiza aportes y revisa gastos para liberar ahorro.');
+      } else if (goalType === 'retirement') {
+        plan.push(`Necesitarás ~${results.capitalNeededAtRetirement?.toFixed?.(2) || '—'} al inicio del retiro.`);
+        plan.push(`Ahorra ${results.monthlySavingsRequired?.toFixed?.(2) || '—'} por periodo hasta la jubilación.`);
+        plan.push('Aprovecha ventajas fiscales y aumenta aportes con incrementos salariales.');
+      } else plan.push('Tipo de meta no reconocido.');
+      return plan;
+    }
+
+    function amortizationSchedule({ balance=0, annualRate=0, payment=0, paymentsPerYear=12, maxPeriods=5000 } = {}) {
+      const schedule = [];
+      const i = annualRate / paymentsPerYear;
+      let bal = balance;
+      let period = 0;
+      if (payment <= 0) return schedule;
+      while (bal > 0 && period < maxPeriods) {
+        period++;
+        const interest = bal * i;
+        let principal = payment - interest;
+        if (principal <= 0) { schedule.push({ period, interest:round2(interest), principal:0, balance:round2(bal), note:'Pago insuficiente' }); break; }
+        if (principal > bal) principal = bal;
+        bal = bal - principal;
+        schedule.push({ period, interest:round2(interest), principal:round2(principal), balance:round2(Math.max(0,bal)) });
+      }
+      return schedule;
+    }
+
+    /* ---------------------------
+       DOM wiring y eventos
+       --------------------------- */
+    (function init() {
+      // Main calculator elements
+      const form = document.getElementById('compoundForm');
+      const initialCapitalInput = document.getElementById('initialCapital');
+      const periodicContributionInput = document.getElementById('periodicContribution');
+      const annualRateInput = document.getElementById('annualRate');
+      const yearsInput = document.getElementById('years');
+      const paymentsPerYearInput = document.getElementById('paymentsPerYear');
+      const paymentTimingInput = document.getElementById('paymentTiming');
+      const currencyInput = document.getElementById('currency');
+
+      const calculateBtn = document.getElementById('calculateBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const toggleChartBtn = document.getElementById('toggleChartBtn');
+      const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+
+      const errorBox = document.getElementById('errorBox');
+      const resultsSection = document.getElementById('resultsSection');
+      const totalFVEl = document.getElementById('totalFV');
+      const totalContributionEl = document.getElementById('totalContribution');
+      const totalInterestEl = document.getElementById('totalInterest');
+      const breakdownInner = document.getElementById('breakdownInner');
+      const chartWrap = document.getElementById('chartWrap');
+      const periodTableWrap = document.getElementById('periodTableWrap');
+
+      let chart = null;
+
+      function clearMainResultsButShowZeros() {
+        // keep results visible, but reset to MXN 0.00 display
+        const curr = (currencyInput.value || 'MXN').toUpperCase();
+        totalFVEl.textContent = formatCurrency(0, { currency: curr });
+        totalContributionEl.textContent = formatCurrency(0, { currency: curr });
+        totalInterestEl.textContent = formatCurrency(0, { currency: curr });
+        breakdownInner.innerHTML = `<div><strong>Capital inicial (FV):</strong> ${formatCurrency(0,{currency:curr})}</div>
+                                   <div><strong>Aportaciones (FV):</strong> ${formatCurrency(0,{currency:curr})}</div>
+                                   <div class="small">Periodos: 0 @ tasa per-period: 0.000000%</div>`;
+        periodTableWrap.innerHTML = '';
+        errorBox.textContent = '';
+        if (chart) { chart.destroy(); chart = null; }
+        chartWrap.style.display = 'none';
+      }
+
+      function renderMainResults(res, opts, balancesInfo) {
+        const currency = (currencyInput.value || 'MXN').toUpperCase();
+        totalFVEl.textContent = formatCurrency(res.totalFV, { currency });
+        totalContributionEl.textContent = formatCurrency(res.totalContribution, { currency });
+        totalInterestEl.textContent = formatCurrency(res.totalInterest, { currency });
+        breakdownInner.innerHTML = `<div><strong>Capital inicial (FV):</strong> ${formatCurrency(res.fvInitial,{currency})}</div>
+                                   <div><strong>Aportaciones (FV):</strong> ${formatCurrency(res.fvAnnuity,{currency})}</div>
+                                   <div class="small">Periodos: ${res.usedN} @ tasa per-period ${(res.usedI*100).toFixed(6)}%</div>`;
+        // table
+        if (balancesInfo && balancesInfo.balances && balancesInfo.balances.length > 0) {
+          const b = balancesInfo.balances; const limit = Math.min(b.length,200);
+          let html = '<table><thead><tr><th>#</th><th>Saldo</th><th>Contrib acumulada</th></tr></thead><tbody>';
+          for (let i=0;i<limit;i++){ const row=b[i]; html += `<tr><td style="text-align:left">${row.period}</td><td>${formatCurrency(row.balance,{currency})}</td><td>${formatCurrency(row.contributionTotal,{currency})}</td></tr>`; }
+          if (b.length>limit) html += `<tr><td colspan="3" class="small">Mostrando primeros ${limit} periodos de ${b.length}</td></tr>`;
+          html += '</tbody></table>'; periodTableWrap.innerHTML = html;
+        } else periodTableWrap.innerHTML = '<div class="small">No hay periodos para mostrar.</div>';
+
+        // chart
+        if (balancesInfo && typeof Chart !== 'undefined' && balancesInfo.balances.length > 0) {
+          const labels = balancesInfo.balances.map(s=>s.period.toString());
+          const data = balancesInfo.balances.map(s=>s.balance);
+          const ctx = document.getElementById('balanceChart').getContext('2d');
+          chartWrap.style.display = 'block';
+          if (chart) chart.destroy();
+          chart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'Saldo', data, borderColor: 'rgba(37,99,235,0.95)', backgroundColor:'rgba(124,58,237,0.08)', fill:true, pointRadius:0, tension:0.25 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{title:{display:true,text:'Periodo'}}, y:{title:{display:true,text:'Saldo'}} } } });
+        } else {
+          if (chart) { chart.destroy(); chart = null; }
+          chartWrap.style.display = 'none';
+        }
+      }
+
+      function handleCalculate(event) {
+        if (event) event.preventDefault();
+        errorBox.textContent = '';
+        try {
+          const P = parseFloat(initialCapitalInput.value) || 0;
+          const PMT = parseFloat(periodicContributionInput.value) || 0;
+          const annualRate = (parseFloat(annualRateInput.value) || 0) / 100;
+          const years = parseFloat(yearsInput.value) || 0;
+          const paymentsPerYear = parseInt(paymentsPerYearInput.value,10) || 12;
+          const paymentTiming = paymentTimingInput.value === 'beginning' ? 'beginning' : 'end';
+
+          const res = calculateCompoundInterestOpts({ P, PMT, annualRate, years, paymentsPerYear, paymentTiming });
+          const balancesInfo = balancesPerPeriod({ P, PMT, annualRate, years, paymentsPerYear, paymentTiming });
+          renderMainResults(res, {P,PMT,annualRate,years,paymentsPerYear,paymentTiming}, balancesInfo);
+        } catch (err) {
+          clearMainResultsButShowZeros();
+          errorBox.textContent = err && err.message ? err.message : 'Entrada inválida';
+        }
+      }
+
+      function handleReset() {
+        // inicializar los campos en 0/00 y moneda por defecto MXN
+        initialCapitalInput.value='0.00';
+        periodicContributionInput.value='0.00';
+        annualRateInput.value='0.00';
+        yearsInput.value='0';
+        paymentsPerYearInput.value='12';
+        currencyInput.value='MXN';
+        paymentTimingInput.value='end';
+
+        clearMainResultsButShowZeros();
+      }
+
+      function handleToggleChart(){ chartWrap.style.display = (chartWrap.style.display==='none'||chartWrap.style.display==='') ? 'block' : 'none'; }
+
+      function handleDownloadCsv(){
+        const P = parseFloat(initialCapitalInput.value) || 0;
+        const PMT = parseFloat(periodicContributionInput.value) || 0;
+        const annualRate = (parseFloat(annualRateInput.value) || 0) / 100;
+        const years = parseFloat(yearsInput.value) || 0;
+        const paymentsPerYear = parseInt(paymentsPerYearInput.value,10) || 12;
+        const paymentTiming = paymentTimingInput.value === 'beginning' ? 'beginning' : 'end';
+        const info = balancesPerPeriod({ P, PMT, annualRate, years, paymentsPerYear, paymentTiming });
+        if (!info.balances || info.balances.length === 0) { alert('No hay datos para descargar.'); return; }
+        const rows=[['period','balance','contributionTotal']]; info.balances.forEach(r=>rows.push([r.period,r.balance.toFixed(2),r.contributionTotal.toFixed(2)]));
+        const csv = rows.map(r=>r.join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='balances.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      }
+
+      form.addEventListener('submit', handleCalculate);
+      calculateBtn.addEventListener('click', handleCalculate);
+      resetBtn.addEventListener('click', handleReset);
+      toggleChartBtn.addEventListener('click', handleToggleChart);
+      downloadCsvBtn.addEventListener('click', handleDownloadCsv);
+
+      /* ---------------------------
+         Eventos y render para metas
+         --------------------------- */
+      // Emergency fund
+      const em_monthlyExpenses = document.getElementById('em_monthlyExpenses');
+      const em_targetMonths = document.getElementById('em_targetMonths');
+      const em_years = document.getElementById('em_years');
+      const em_annualRate = document.getElementById('em_annualRate');
+      const em_calcBtn = document.getElementById('em_calcBtn');
+      const em_planBtn = document.getElementById('em_planBtn');
+      const em_result = document.getElementById('em_result');
+
+      em_calcBtn.addEventListener('click', () => {
+        try {
+          const monthlyExpenses = parseFloat(em_monthlyExpenses.value) || 0;
+          const targetMonths = parseInt(em_targetMonths.value,10) || 3;
+          const years = parseFloat(em_years.value) || 0;
+          const annualRate = (parseFloat(em_annualRate.value) || 0) / 100;
+          const P = 0;
+          const res = emergencyFundCalculator({ monthlyExpenses, targetMonths, P, annualRate, years, paymentsPerYear:12 });
+          const currency = (currencyInput.value || 'MXN').toUpperCase();
+          if (res.note) {
+            em_result.innerHTML = `<div><strong>Meta objetivo:</strong> ${formatCurrency(res.targetAmount,{currency})}</div>
+                                   <div><strong>Ahorro requerido (plazo no definido):</strong> ${formatCurrency(Math.max(0,res.targetAmount - P),{currency})}</div>
+                                   <div class="small">${res.note}</div>`;
+          } else {
+            em_result.innerHTML = `<div><strong>Meta objetivo:</strong> ${formatCurrency(res.targetAmount,{currency})}</div>
+                                   <div><strong>Ahorro requerido por periodo:</strong> ${formatCurrency(res.requiredMonthlySavings,{currency})}</div>`;
+          }
+        } catch (err){ em_result.textContent = err.message || 'Error'; }
+      });
+
+      em_planBtn.addEventListener('click', () => {
+        try {
+          const monthlyExpenses = parseFloat(em_monthlyExpenses.value) || 0;
+          const targetMonths = parseInt(em_targetMonths.value,10) || 3;
+          const years = parseFloat(em_years.value) || 0;
+          const annualRate = (parseFloat(em_annualRate.value) || 0) / 100;
+          const P = 0;
+          const res = emergencyFundCalculator({ monthlyExpenses, targetMonths, P, annualRate, years, paymentsPerYear:12 });
+          const plan = generateActionPlan('emergency', res);
+          em_result.innerHTML += `<pre class="plan">${plan.join('\n')}</pre>`;
+        } catch (err){ em_result.textContent = err.message || 'Error'; }
+      });
+
+      // Debt
+      const de_balance = document.getElementById('de_balance');
+      const de_annualRate = document.getElementById('de_annualRate');
+      const de_years = document.getElementById('de_years');
+      const de_payment = document.getElementById('de_payment');
+      const de_calcBtn = document.getElementById('de_calcBtn');
+      const de_planBtn = document.getElementById('de_planBtn');
+      const de_result = document.getElementById('de_result');
+      const de_tableWrap = document.getElementById('de_tableWrap');
+
+      de_calcBtn.addEventListener('click', () => {
+        try {
+          const balance = parseFloat(de_balance.value) || 0;
+          const annualRate = (parseFloat(de_annualRate.value) || 0) / 100;
+          const years = parseFloat(de_years.value) || 0;
+          const payment = parseFloat(de_payment.value);
+          const suggested = (years > 0) ? paymentToAmortizeDebt({ balance, annualRate, years, paymentsPerYear:12 }) : 0;
+          const payInfo = !isNaN(payment) && payment > 0 ? monthsToPayOffDebt({ balance, annualRate, payment, paymentsPerYear:12 }) : null;
+          const currency = (currencyInput.value || 'MXN').toUpperCase();
+
+          de_result.innerHTML = `<div><strong>Pago sugerido para ${years} años:</strong> ${formatCurrency(suggested,{currency})}</div>`;
+          if (payInfo) {
+            if (payInfo.periods === Infinity) de_result.innerHTML += `<div class="small">Pago actual insuficiente para amortizar (no cubre intereses)</div>`;
+            else de_result.innerHTML += `<div><strong>Si pagas ${formatCurrency(payment||0,{currency})} tardarás:</strong> ${payInfo.periods} periodos (~${payInfo.yearsApprox.toFixed(1)} años)</div>`;
+          }
+          // amortization table with suggested payment (if suggested > 0)
+          const sched = (suggested > 0) ? amortizationSchedule({ balance, annualRate, payment: suggested, paymentsPerYear:12 }) : [];
+          if (sched.length === 0) de_tableWrap.innerHTML = '<div class="small">No hay tabla (pago <=0 o sin plazo definido)</div>';
+          else {
+            let html = '<table><thead><tr><th>#</th><th>Interés</th><th>Principal</th><th>Saldo</th></tr></thead><tbody>';
+            for (const r of sched) html += `<tr><td style="text-align:left">${r.period}</td><td>${formatCurrency(r.interest,{currency})}</td><td>${formatCurrency(r.principal,{currency})}</td><td>${formatCurrency(r.balance,{currency})}</td></tr>`;
+            html += '</tbody></table>'; de_tableWrap.innerHTML = html;
+          }
+        } catch (err) { de_result.textContent = err.message || 'Error'; de_tableWrap.innerHTML = ''; }
+      });
+
+      de_planBtn.addEventListener('click', () => {
+        try {
+          const balance = parseFloat(de_balance.value) || 0;
+          const annualRate = (parseFloat(de_annualRate.value) || 0) / 100;
+          const years = parseFloat(de_years.value) || 0;
+          const suggested = (years > 0) ? paymentToAmortizeDebt({ balance, annualRate, years, paymentsPerYear:12 }) : 0;
+          const plan = generateActionPlan('debt', { periods: years*12, suggestedPayment: suggested, targetYears: years, paymentsPerYear:12 });
+          de_result.innerHTML += `<pre class="plan">${plan.join('\n')}</pre>`;
+        } catch (err) { de_result.textContent = err.message || 'Error'; }
+      });
+
+      // Savings goal
+      const sv_goalFV = document.getElementById('sv_goalFV');
+      const sv_P = document.getElementById('sv_P');
+      const sv_years = document.getElementById('sv_years');
+      const sv_annualRate = document.getElementById('sv_annualRate');
+      const sv_calcBtn = document.getElementById('sv_calcBtn');
+      const sv_planBtn = document.getElementById('sv_planBtn');
+      const sv_result = document.getElementById('sv_result');
+
+      sv_calcBtn.addEventListener('click', () => {
+        try {
+          const FV = parseFloat(sv_goalFV.value) || 0;
+          const P = parseFloat(sv_P.value) || 0;
+          const years = parseFloat(sv_years.value) || 0;
+          const annualRate = (parseFloat(sv_annualRate.value) || 0) / 100;
+          const currency = (currencyInput.value || 'MXN').toUpperCase();
+
+          if (years <= 0) {
+            const immediate = Math.max(0, FV - P);
+            sv_result.innerHTML = `<div><strong>Plazo no definido:</strong> necesitas ${formatCurrency(immediate,{currency})} inmediatamente (o define un plazo mayor que 0 para calcular aportes periódicos)</div>`;
+            return;
+          }
+
+          const PMT = requiredMonthlySavingsForGoal({ P, FV, annualRate, years, paymentsPerYear:12, paymentTiming:'end' });
+          if (!isFinite(PMT)) {
+            sv_result.innerHTML = `<div class="small">No es posible calcular aportes periódicos para el plazo indicado.</div>`;
+          } else {
+            sv_result.innerHTML = `<div><strong>Ahorro necesario por periodo:</strong> ${formatCurrency(PMT,{currency})}</div>`;
+          }
+        } catch (err){ sv_result.textContent = err.message || 'Error'; }
+      });
+
+      sv_planBtn.addEventListener('click', () => {
+        try {
+          const FV = parseFloat(sv_goalFV.value) || 0;
+          const P = parseFloat(sv_P.value) || 0;
+          const years = parseFloat(sv_years.value) || 0;
+          const annualRate = (parseFloat(sv_annualRate.value) || 0) / 100;
+          const currency = (currencyInput.value || 'MXN').toUpperCase();
+
+          if (years <= 0) {
+            const immediate = Math.max(0, FV - P);
+            sv_result.innerHTML += `<pre class="plan">Necesitas ${formatCurrency(immediate,{currency})} inmediatamente (define plazo para calcular aportes).</pre>`;
+            return;
+          }
+
+          const PMT = requiredMonthlySavingsForGoal({ P, FV, annualRate, years, paymentsPerYear:12, paymentTiming:'end' });
+          const plan = generateActionPlan('savings', { FV, requiredMonthlySavings: PMT });
+          sv_result.innerHTML += `<pre class="plan">${plan.join('\n')}</pre>`;
+        } catch (err){ sv_result.textContent = err.message || 'Error'; }
+      });
+
+      // Retirement
+      const rt_withdraw = document.getElementById('rt_withdraw');
+      const rt_withdrawYears = document.getElementById('rt_withdrawYears');
+      const rt_yearsToRetire = document.getElementById('rt_yearsToRetire');
+      const rt_preRate = document.getElementById('rt_preRate');
+      const rt_calcBtn = document.getElementById('rt_calcBtn');
+      const rt_planBtn = document.getElementById('rt_planBtn');
+      const rt_result = document.getElementById('rt_result');
+
+      rt_calcBtn.addEventListener('click', () => {
+        try {
+          const W = parseFloat(rt_withdraw.value) || 0;
+          const withdrawYears = parseFloat(rt_withdrawYears.value) || 20;
+          const yearsToRetire = parseFloat(rt_yearsToRetire.value) || 30;
+          const preRetirementRate = (parseFloat(rt_preRate.value) || 0) / 100;
+          const currency = (currencyInput.value || 'MXN').toUpperCase();
+
+          const res = retirementPlanner({ W, withdrawYears, paymentsPerYear:12, preRetirementRate, yearsToRetire, P:0 });
+          rt_result.innerHTML = `<div><strong>Capital necesario:</strong> ${formatCurrency(res.capitalNeededAtRetirement,{currency})}</div>
+                                 <div><strong>Ahorro requerido por periodo:</strong> ${formatCurrency(res.monthlySavingsRequired,{currency})}</div>`;
+        } catch (err){ rt_result.textContent = err.message || 'Error'; }
+      });
+
+      rt_planBtn.addEventListener('click', () => {
+        try {
+          const W = parseFloat(rt_withdraw.value) || 0;
+          const withdrawYears = parseFloat(rt_withdrawYears.value) || 20;
+          const yearsToRetire = parseFloat(rt_yearsToRetire.value) || 30;
+          const preRetirementRate = (parseFloat(rt_preRate.value) || 0) / 100;
+          const res = retirementPlanner({ W, withdrawYears, paymentsPerYear:12, preRetirementRate, yearsToRetire, P:0 });
+          const plan = generateActionPlan('retirement', res);
+          rt_result.innerHTML += `<pre class="plan">${plan.join('\n')}</pre>`;
+        } catch (err){ rt_result.textContent = err.message || 'Error'; }
+      });
+
+      // initialize defaults (sets fields and shows zeros)
+      handleReset();
+    })();
+
+    /* Expose functions for console/debug if needed */
+    window.finance = { calculateCompoundInterestOpts, balancesPerPeriod, requiredMonthlySavingsForGoal, paymentToAmortizeDebt, monthsToPayOffDebt, emergencyFundCalculator, retirementPlanner, generateActionPlan, amortizationSchedule };
+  </script>
+</body>
+</html>
